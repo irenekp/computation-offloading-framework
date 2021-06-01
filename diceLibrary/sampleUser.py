@@ -1,13 +1,14 @@
 from diceLibrary.diceConfig import DiceConfig
-from diceLibrary.settings import ProfilerEnum, DecisionEngineEnum
+from diceLibrary.settings import ProfilerConfig, DecisionEngineConfig, LoggerConfig
 from diceLibrary.dice import Dice
 
 x=DiceConfig()
-x.setProfiler([ProfilerEnum.ENERGY, ProfilerEnum.NETWORK, ProfilerEnum.RUNTIME, ProfilerEnum.CPU])
-x.setDecisionEngine([DecisionEngineEnum.CASCADE])
+x.setProfilerConfig([ProfilerConfig.ENERGY, ProfilerConfig.NETWORK, ProfilerConfig.RUNTIME, ProfilerConfig.CPU])
+x.setDecisionEngineConfig([DecisionEngineConfig.CASCADE])
 x.enableAnalytics(True)
-x.enableLogger(True)
+x.setLoggerConfig([LoggerConfig.PERSISTLOG,LoggerConfig.DOWNLOAD])
 dice=Dice(x)
+
 @Dice.offloadable(dice=dice)
 def myFunc(input):
     print('my Func'+input)

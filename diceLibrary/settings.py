@@ -1,6 +1,6 @@
 from datetime import datetime
 import enum
-class ProfilerEnum(enum.Enum):
+class ProfilerConfig(enum.Enum):
     ENERGY = 1
     NETWORK = 2
     RUNTIME = 3
@@ -10,9 +10,16 @@ class ProfilerEnum(enum.Enum):
     def has_value(cls, value):
         return value in cls._value2member_map_
 
-class DecisionEngineEnum(enum.Enum):
+class DecisionEngineConfig(enum.Enum):
     CASCADE =1
 
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
+
+class LoggerConfig(enum.Enum):
+    PERSISTLOG=1
+    DOWNLOAD=2
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_
