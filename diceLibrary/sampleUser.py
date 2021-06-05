@@ -6,7 +6,7 @@ x=DiceConfig()
 x.setProfilerConfig([ProfilerConfig.ENERGY, ProfilerConfig.NETWORK, ProfilerConfig.RUNTIME, ProfilerConfig.CPU])
 x.setDecisionEngineConfig([DecisionEngineConfig.CASCADE])
 x.enableAnalytics(True)
-x.setLoggerConfig([LoggerConfig.PERSISTLOG,LoggerConfig.DOWNLOAD])
+x.setLoggerConfig([LoggerConfig.DOWNLOAD])
 dice=Dice(x)
 
 @Dice.offloadable(dice=dice)

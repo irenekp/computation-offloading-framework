@@ -5,7 +5,7 @@ import sys
 class Logger:
     logger=None
     def __init__(self, settings):
-        if not settings or not len(settings):
+        if not settings or not len(settings) or LoggerConfig.DISABLE in settings:
             return
         self.logger=logging.getLogger()
         filemode='w'
@@ -21,6 +21,8 @@ class Logger:
                     logging.StreamHandler(sys.stdout)
                 ])
         else:
+            if LoggerConfig.PERSISTLOG in settings:
+                self.logger.error('Persist log option ignored as download logs option was not enabled')
             logging.basicConfig(
                 level="INFO",
                 format="%(asctime)s-[%(name)s]-[%(levelname)s]-%(message)s",
@@ -28,8 +30,7 @@ class Logger:
                 handlers=[
                     logging.StreamHandler(sys.stdout)
                 ])
-            if LoggerConfig.PERSISTLOG in settings:
-                self.logger.error('Persist log option ignored as download logs option was not enabled')
+
         logging.captureWarnings(capture=True)
 
     def info(self, msg):

@@ -5,7 +5,7 @@ from datetime import datetime
 class cascadeDatabase:
     dbName='pythonsqlite.db'
     tableName='cascadeHistory'
-    def __init__(self,dbName):
+    def __init__(self,dbName='pythonsqlite.db'):
         self.dbName=dbName
 
     def createTableIfNotExists(self):

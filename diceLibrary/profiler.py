@@ -125,5 +125,23 @@ class Profiler:
         if self._networkEnabled:
             pass
 
+    def getProfilerSummary(self):
+        runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc=None, None, None, None, None,None, None, None, None, None, None,
+        if self.runTime:
+            runT=self.runTime.runtime
+        if self.batteryStats:
+            batteryT=self.batteryStats.consumedBatteryTime
+        if self.networkStats:
+            latency=self.networkStats.latency
+            ping=self.networkStats.ping
+            upload=self.networkStats.upload
+            download=self.networkStats.download
+        if self.cpu:
+            user=self.cpu.user
+            sys=self.cpu.system
+            idle=self.cpu.idle
+            interrupt=self.cpu.interrupt
+            dpc=self.cpu.dpc
+        return runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc
 
     

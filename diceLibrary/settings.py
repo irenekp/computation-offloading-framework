@@ -20,6 +20,14 @@ class DecisionEngineConfig(enum.Enum):
 class LoggerConfig(enum.Enum):
     PERSISTLOG=1
     DOWNLOAD=2
+    DISABLE=3
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
+
+class AnalyticsConfig(enum.Enum):
+    CURRENTRUN=1
+    SUMMARYANALYTICS=2
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_

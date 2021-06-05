@@ -1,14 +1,16 @@
-from diceLibrary.settings import ProfilerConfig, DecisionEngineConfig, LoggerConfig
+from diceLibrary.settings import ProfilerConfig, DecisionEngineConfig, LoggerConfig, AnalyticsConfig
 import logging
 class DiceConfig:
     _profiler: list
     _decisionEngine: list
-    _analytics: bool
+    _analytics: list
     _logger: list
+    _analyticsEnabled: bool = False
     _loggerEnabled: bool = False
     log=None
     def __init__(self):
         self.log=logging.getLogger()
+
     def setProfilerConfig(self,settings: list):
         if not settings or not len(settings):
             self.log.warning('No Profiles Chosen - Profiler Disabled')
@@ -40,12 +42,24 @@ class DiceConfig:
     def getDecisionEngineConfig(self):
         return self._decisionEngine
 
-    def enableAnalytics(self,setting: bool):
-        print('analytics'+str(setting))
-        self._analytics=setting
+    def setAnalyticsConfig(self,settings:list):
+        if not settings or not len(settings):
+            self.log.warning('Analytics Disabled')
+        else:
+            self._analyticsEnabled=True
+            settingList=list()
+            for setting in settings:
+                if not AnalyticsConfig.has_value(setting.value):
+                    self.log.error('Erroneous analytics setting detected - ignored')
+                else:
+                    settingList.append(setting)
+            self._analytics=settingList
 
     def getAnalyticSetting(self):
         return self._analytics
+
+    def isAnalyticsEnabled(self):
+        return self._analyticsEnabled
 
     def setLoggerConfig(self, settings: list):
         if not settings or not len(settings):
