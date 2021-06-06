@@ -256,7 +256,7 @@ class Analytics:
 
 if __name__=='__main__':
     runIds=['06/03/2021T00:21:59','06/03/2021T00:22:07','06/03/2021T00:21:29','06/03/2021T00:22:46']
-    dB=cascadeDatabase('pythonsqlite.db')
+    dB=cascadeDatabase('store.db')
     dB.createTableIfNotExists()
     #dB.addCascadeEntry('func1',False,28,29,34,45,46,56,34,6,7,8,9,10)
     data=dB.getCascadeData()
