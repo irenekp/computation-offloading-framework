@@ -5,14 +5,12 @@ class ProfilerConfig(enum.Enum):
     NETWORK = 2
     RUNTIME = 3
     CPU = 4
-
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_
 
 class DecisionEngineConfig(enum.Enum):
     CASCADE =1
-
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_
@@ -50,14 +48,10 @@ class CPUStats:
     user: float
     system: float
     idle: float
-    interrupt: float
-    dpc: float
     def calculateDifference(self):
         self.user=self.endStats.user-self.startStats.user
         self.system=self.endStats.system-self.startStats.system
         self.idle=self.endStats.idle-self.startStats.idle
-        self.interrupt=self.endStats.interrupt-self.startStats.interrupt
-        self.dpc=self.endStats.dpc-self.startStats.dpc
 
 class NetworkStats:
     latency: float

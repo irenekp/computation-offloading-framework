@@ -25,8 +25,6 @@ class Analytics:
         'userCPU': 'thistle',
         'systemCPU': 'mediumpurple',
         'idleCPU': 'blueviolet',
-        'interruptCPU': 'purple',
-        'dpcCPU': 'indigo'
     }
     colors=['#440154', '#30678D', '#35B778', '#FDE724','#440154', '#30678D', '#35B778','#29788E', '#22A784', '#79D151']
     legend={
@@ -40,23 +38,24 @@ class Analytics:
         'userCPU': 'User CPU',
         'systemCPU': 'System CPU',
         'idleCPU': 'Idle CPU',
-        'interruptCPU': 'Interrupt CPU',
-        'dpcCPU': 'DPC CPU'
     }
-    offloadColor=['white','firebrick']
+    offloadColor=['black','firebrick']
     offloadLine=['solid','dashed']
     offloadLegend=['Local','Remote']
     profilerConfig=None
     config=None
-    def __init__(self,config,profilerConfig):
+    def __init__(self,config):
         self.runIds=list()
-        self.profilerConfig=profilerConfig
+
         self.log=logging.getLogger()
         self.config=config
 
     def addToAnalytics(self, runId):
         self.log.info('Run ID: '+runId+' added to analytics')
         self.runIds.append(runId)
+
+    def parseUpdatedConfig(self, config):
+        self.profilerConfig = config
 
     def analyze(self, data):
         self.data=data
@@ -66,14 +65,14 @@ class Analytics:
             singleRun['functionName'] = singleRun.index
             self.singleRunAnalytics(singleRun)
             self.log.info('Current Run Analytics Generated')
-            self.correlationGraph(singleRun)
+            #self.correlationGraph(singleRun)
             self.log.info('Current Run Correlation Graph Generated')
         else:
             self.log.warning('Current Run Analytics Not Generated')
         if AnalyticsConfig.SUMMARYANALYTICS in self.config:
             self.summaryAnalytics(data)
             self.log.info('Summary Analytics Generated')
-            self.correlationGraph(data)
+            #self.correlationGraph(data)
             self.log.info('Summary Correlation Graph Generated')
         else:
             self.log.warning('Summary Analytics Not Generated')
@@ -95,7 +94,7 @@ class Analytics:
             title='Function v Run Time'
             plots.append(self.createBarChart(data,xOffset,legend,title, palette=True))
         #Battery Time
-        if ProfilerConfig.BATTERYTIME in self.profilerConfig:
+        if ProfilerConfig.ENERGY in self.profilerConfig:
             batteryTime=list(singleRun['batteryTime'])
             data2={'xAxis':funcNames,'batteryTime':batteryTime}
             xOffset2=0
@@ -114,7 +113,7 @@ class Analytics:
                 data3[stat]=xList
             plots.append(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500))
         if ProfilerConfig.CPU in self.profilerConfig:
-            cpuStats=['userCPU','systemCPU','idleCPU','interruptCPU','dpcCPU']
+            cpuStats=['userCPU','systemCPU','idleCPU']
             data4={'xAxis':funcNames}
             xOffset=-0.25
             for stat in cpuStats:
@@ -129,14 +128,14 @@ class Analytics:
     def summaryAnalytics(self,data):
         # prepare some data
         output_file('plots.html')
-        curdoc().theme = 'dark_minimal'
+        #curdoc().theme = 'dark_minimal'
         funcNames=list(set(data.functionName))
         if len(funcNames)<=0:
             self.log.warning('No function data available. Summary Analytics Aborted')
             return
         plots=list()
         for yAxis in ['dataSize','latency']:
-            for stat in ['runTime','batteryTime','latency','upload','download','ping','userCPU','systemCPU','idleCPU','interruptCPU','dpcCPU']:
+            for stat in ['runTime','batteryTime','latency','upload','download','ping','userCPU','systemCPU','idleCPU']:
                 for f in funcNames:
                     fdata=data[data.functionName==f]
                     xlocalsize=list(fdata[fdata.offloadStatus==0][yAxis])
@@ -202,10 +201,10 @@ class Analytics:
 
     def correlationGraph(self,data):
         data['local'] = data.apply(lambda row: 1-row.offloadStatus, axis=1)
-        data['remote'] = data.apply(lambda row: row.offloadStatus-1, axis=1)
+        data['remote'] = data.apply(lambda row: row.offloadStatus, axis=1)
         #Now we will create correlation matrix using pandas
         df = data.corr()
-        df=df.drop(['offloadStatus','dataSize','runTime','batteryTime','latency','upload','download','ping','userCPU','systemCPU','idleCPU','interruptCPU','dpcCPU'])
+        df=df.drop(['offloadStatus','dataSize','runTime','batteryTime','latency','upload','download','ping','userCPU','systemCPU','idleCPU'], errors = 'ignore')
         df=df.drop(['offloadStatus','local','remote'], axis=1)
         df.index.name = 'AllColumns1'
         df.columns.name = 'AllColumns2'
@@ -267,5 +266,6 @@ if __name__=='__main__':
     analytics=Analytics()
     analytics.singleRunAnalytics(singleRun)
     analytics.summaryAnalytics(data)
+
     analytics.correlationGraph(data)
 

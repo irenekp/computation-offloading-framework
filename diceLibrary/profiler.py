@@ -65,7 +65,7 @@ class Profiler:
                     self.log.info('Battery End Percentage:'+str(batt.percent))
                 if batt.power_plugged:
                     self.log.error('Battery charging, monitoring disabled')
-                    self._energyEnabled=False
+                    self._energyEnabled = False
                 else:
                     if start:
                         self.batteryStats.startBatteryTime=batt.secsleft
@@ -77,6 +77,7 @@ class Profiler:
     def profileNetwork(self):
         try:
             threads = 1
+            print(dir(speedtest))
             s = speedtest.Speedtest()
             s.download(threads=threads)
             s.upload(threads=threads)
@@ -120,28 +121,34 @@ class Profiler:
             self.cpu.endStats=psutil.cpu_times()
             self.cpu.calculateDifference()
             self.log.info('Cpu Stats At End:'+str(self.cpu.endStats))
-            self.log.info('Runtime Cpu Summary: user:'+str(self.cpu.user)+' system: '+str(self.cpu.system)+' idle: '+str(self.cpu.idle) \
-                          +' interrupt: '+str(self.cpu.interrupt)+' dpc: '+str(self.cpu.dpc))
         if self._networkEnabled:
             pass
 
     def getProfilerSummary(self):
-        runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc=None, None, None, None, None,None, None, None, None, None, None,
-        if self.runTime:
+        runT,batteryT,latency,ping,upload,download,user,sys,idle=None, None, None, None, None,None, None, None, None,
+        if self._runtimeEnabled:
             runT=self.runTime.runtime
-        if self.batteryStats:
+        if self._energyEnabled:
             batteryT=self.batteryStats.consumedBatteryTime
-        if self.networkStats:
-            latency=self.networkStats.latency
+        if self._networkEnabled:
             ping=self.networkStats.ping
             upload=self.networkStats.upload
             download=self.networkStats.download
-        if self.cpu:
+            latency=self.networkStats.latency
+        if self._cpuEnabled:
             user=self.cpu.user
             sys=self.cpu.system
             idle=self.cpu.idle
-            interrupt=self.cpu.interrupt
-            dpc=self.cpu.dpc
-        return runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc
+        return runT,batteryT,latency,ping,upload,download,user,sys,idle
 
-    
+    def getUpdatedProfile(self):
+        updatedConfig = []
+        if self._runtimeEnabled:
+            updatedConfig.append(ProfilerConfig.RUNTIME)
+        if self._cpuEnabled:
+            updatedConfig.append(ProfilerConfig.CPU)
+        if self._networkEnabled:
+            updatedConfig.append(ProfilerConfig.NETWORK)
+        if self._energyEnabled:
+            updatedConfig.append(ProfilerConfig.ENERGY)
+        return updatedConfig

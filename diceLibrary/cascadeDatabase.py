@@ -7,6 +7,7 @@ class cascadeDatabase:
     tableName='cascadeHistory'
     def __init__(self,dbName='pythonsqlite.db'):
         self.dbName=dbName
+        self.createTableIfNotExists()
 
     def createTableIfNotExists(self):
         conn = sqlite3.connect(self.dbName)
@@ -25,15 +26,13 @@ class cascadeDatabase:
         userCPU FLOAT,
         systemCPU FLOAT,
         idleCPU FLOAT,
-        interruptCPU FLOAT,
-        dpcCPU FLOAT,
         PRIMARY KEY (runId)
         )
         '''.format(self.tableName))
         print('table created')
         conn.close()
 
-    def addCascadeEntry(self, func,offloaded,dataSize,runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc):
+    def addCascadeEntry(self, func,offloaded,dataSize,runT,batteryT,latency,ping,upload,download,user,sys,idle):
         id=datetime.now().strftime('%m/%d/%YT%H:%M:%S')
         conn = sqlite3.connect(self.dbName)
         if offloaded:
@@ -41,8 +40,8 @@ class cascadeDatabase:
         else:
             offloaded=0
         conn.execute('''
-        INSERT INTO {} VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        '''.format(self.tableName),(id,func,offloaded,dataSize,runT,batteryT,latency,ping,upload,download,user,sys,idle,interrupt,dpc))
+        INSERT INTO {} VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+        '''.format(self.tableName),(id,func,offloaded,dataSize,runT,batteryT,latency,ping,upload,download,user,sys,idle))
         print('entry added to dB')
         conn.commit()
         conn.close()
@@ -55,6 +54,7 @@ class cascadeDatabase:
 
 if __name__ == '__main__':
     dB=cascadeDatabase('pythonsqlite.db')
-    dB.createTableIfNotExists()
+    #dB.createTableIfNotExists()
     #dB.addCascadeEntry('func1',False,28,29,34,45,46,56,34,6,7,8,9,10)
     dB.getCascadeData()
+    print("end")
