@@ -4,7 +4,7 @@ from diceLibrary.settings import DecisionEngineConfig, AnalyticsConfig
 from diceLibrary.cascadeDatabase import cascadeDatabase
 from diceLibrary.analytics import Analytics
 from diceLibrary.dispatcher import Dispatcher
-
+from diceLibrary.trainer import Trainer
 class Dice:
     config=None
     profiler=None
@@ -14,6 +14,7 @@ class Dice:
     analyticsStatus=False
     singleRun=False
     dispatcher = None
+    trainer=None
     def __init__(self, config):
         self.config=config
         self.log=Logger(config.getLoggerConfig())
@@ -26,7 +27,7 @@ class Dice:
             self.singleRun=AnalyticsConfig.CURRENTRUN in config.getAnalyticSetting()
             self.analytics=Analytics(self.config.getAnalyticSetting())
         self.dispatcher = Dispatcher("http://ec2-18-219-235-10.us-east-2.compute.amazonaws.com:8080/getNQueens", _inputArgs={"n":"9"})
-        
+        self.trainer=Trainer()
 
     @staticmethod
     def offloadable(*args, **kwargs):
@@ -61,6 +62,10 @@ class Dice:
         if self.analyticsStatus:
             data=self.cascadeDB.getCascadeData()
             self.analytics.analyze(data)
+
+    def train(self, func, n:int, inputs: list):
+        self.cascadeDB.setTrainMode(True)
+        self.trainer.train(func, n, inputs)
 
 if __name__=='__main__':
     pass

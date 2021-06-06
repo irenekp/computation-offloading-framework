@@ -2,6 +2,7 @@ from diceLibrary.settings import ProfilerConfig, RunTime, BatteryStats, CPUStats
 from datetime import datetime
 import speedtest
 import psutil
+import copy
 
 class Profiler:
     _profilerEnabled: bool
@@ -14,6 +15,7 @@ class Profiler:
     networkStats: NetworkStats
     cpu: CPUStats
     log=None
+    _networkStatsStore=dict()
 
     def __init__(self, settings, log):
         self._energyEnabled=False
@@ -75,6 +77,12 @@ class Profiler:
                         self.log.info('Battery End Time Left:'+str(batt.secsleft))
 
     def profileNetwork(self):
+        if self._networkStatsStore.get('storedData',None)!=None:
+            time=self._networkStatsStore['storedData']['time']
+            diff=(datetime.now()-time).total_seconds()
+            if diff<600:
+                self.networkStats=copy.deepcopy(self._networkStatsStore['storedData']['data'])
+                return
         try:
             threads = 1
             print(dir(speedtest))
@@ -88,6 +96,7 @@ class Profiler:
             self.networkStats.latency=res['server']['latency']
             self.log.info('Network Stats: upload: '+str(res['upload'])\
                           +' download: '+str(res['download'])+' ping: '+str(res['ping'])+' latency: '+str(res['server']['latency']))
+            self._networkStatsStore['storedData']={'time':datetime.now(),'data':copy.deepcopy(self.networkStats)}
         except:
             self.log.error('Error in capturing network statistics - disabled')
             self._networkEnabled=False
