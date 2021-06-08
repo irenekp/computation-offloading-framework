@@ -1,9 +1,8 @@
 from bokeh.plotting import figure, output_file
 from bokeh.models import HoverTool
 from bokeh.transform import dodge
-from bokeh.layouts import row, gridplot
+from bokeh.layouts import gridplot
 from diceLibrary.cascadeDatabase import cascadeDatabase
-from bokeh.io import curdoc
 from bokeh.io import show
 from bokeh.transform import transform
 from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, ColumnDataSource
@@ -83,7 +82,7 @@ class Analytics:
 
 
     def singleRunAnalytics(self,singleRun):
-        output_file('templates/plots.html')
+        output_file(r'diceLibrary/templates/plots.html')
         plots=list()
         funcNames=list(set(singleRun.functionName))
         if len(funcNames)<=0:
@@ -99,7 +98,7 @@ class Analytics:
 
             #Separately saving runtime graphs in a html file
             html_run = file_html(self.createBarChart(data, xOffset, legend, title, palette=True), CDN, 'something')
-            file = open("templates/runtime.html", 'w')
+            file = open(r'diceLibrary/templates/runtime.html', 'w')
             for line in html_run:
                 file.write(line)
 
@@ -114,7 +113,7 @@ class Analytics:
 
             #Separately saving battery graphs in a html file
             html_battery = file_html(self.createBarChart(data2,xOffset2,legend2,title2, palette=True,offset=1), CDN, 'something')
-            file = open("templates/energy.html", 'w')
+            file = open(r'diceLibrary/templates/energy.html', 'w')
             for line in html_battery:
                 file.write(line)
 
@@ -127,7 +126,7 @@ class Analytics:
 
             #Separately saving network graphs in a html file
             html_network = file_html(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500), CDN, 'something')
-            file = open("templates/network.html", 'w')
+            file = open(r'diceLibrary/templates/network.html', 'w')
             for line in html_network:
                 file.write(line)
 
@@ -146,7 +145,7 @@ class Analytics:
 
             # Separately saving CPU graphs in a html file
             html_cpu = file_html(self.createBarChart(data4,xOffset,cpuStats,'CPUStats v Functions',500), CDN, 'something')
-            file = open("templates/cpu.html", 'w')
+            file = open(r'diceLibrary/templates/cpu.html', 'w')
             for line in html_cpu:
                 file.write(line)
 
@@ -162,7 +161,7 @@ class Analytics:
 
     def summaryAnalytics(self,data):
         # prepare some data
-        output_file('templates/plots.html')
+        output_file(r'diceLibrary/templates/plots.html')
         #curdoc().theme = 'dark_minimal'
         funcNames=list(set(data.functionName))
         if len(funcNames)<=0:

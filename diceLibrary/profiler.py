@@ -134,10 +134,11 @@ class Profiler:
             pass
 
     def getProfilerSummary(self):
-        runT,batteryT,latency,ping,upload,download,user,sys,idle=None, None, None, None, None,None, None, None, None,
+        runT,batteryS,batteryT,latency,ping,upload,download,user,sys,idle=None, None, None, None, None,None, None, None, None,None
         if self._runtimeEnabled:
             runT=self.runTime.runtime
         if self._energyEnabled:
+            batteryS=self.batteryStats.startBatteryTime
             batteryT=self.batteryStats.consumedBatteryTime
         if self._networkEnabled:
             ping=self.networkStats.ping
@@ -148,7 +149,7 @@ class Profiler:
             user=self.cpu.user
             sys=self.cpu.system
             idle=self.cpu.idle
-        return runT,batteryT,latency,ping,upload,download,user,sys,idle
+        return runT,batteryS,batteryT,latency,ping,upload,download,user,sys,idle
 
     def getUpdatedProfile(self):
         updatedConfig = []

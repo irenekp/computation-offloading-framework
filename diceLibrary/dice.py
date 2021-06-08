@@ -3,18 +3,21 @@ from diceLibrary.logger import Logger
 from diceLibrary.settings import DecisionEngineConfig, AnalyticsConfig
 from diceLibrary.cascadeDatabase import cascadeDatabase
 from diceLibrary.analytics import Analytics
-from diceLibrary.dispatcher import Dispatcher
+from diceLibrary.decisionEngine import DecisionEngine
 from diceLibrary.trainer import Trainer
+import time
 class Dice:
     config=None
     profiler=None
     cascadeDB=None
     analytics=None
+    decisionEngine=None
     log=None
     analyticsStatus=False
     singleRun=False
     dispatcher = None
     trainer=None
+
     def __init__(self, config):
         self.config=config
         self.log=Logger(config.getLoggerConfig())
@@ -22,39 +25,12 @@ class Dice:
         if config.getDecisionEngineConfig():
             if DecisionEngineConfig.CASCADE in config.getDecisionEngineConfig():
                 self.cascadeDB=cascadeDatabase()
+            self.decisionEngine=DecisionEngine()
         self.analyticsStatus=config.isAnalyticsEnabled()
         if self.analyticsStatus:
             self.singleRun=AnalyticsConfig.CURRENTRUN in config.getAnalyticSetting()
             self.analytics=Analytics(self.config.getAnalyticSetting())
-        self.dispatcher = Dispatcher("http://ec2-18-219-235-10.us-east-2.compute.amazonaws.com:8080/getNQueens", _inputArgs={"n":"9"})
-        self.trainer=Trainer()
-
-    @staticmethod
-    def offloadable(*args, **kwargs):
-        def intermediateOffloadable(func):
-            def runOffloadable(*args2, **kwargs2):
-                dice=kwargs.get('dice',None)
-                if dice:
-                    dice.log.info('Beginning profiling process')
-                    dice.profiler.startProfile()
-                    func(*args2, **kwargs2)
-                    #dice.dispatcher.offload_Val_Val()
-                    dice.profiler.closeProfile()
-                    runT,batteryT,latency,ping,upload,download,user,sys,idle =dice.profiler.getProfilerSummary()
-                    if dice.cascadeDB:
-                        id=dice.cascadeDB.addCascadeEntry(func.__name__,0,2000,runT,batteryT,latency,ping,upload,download,user,sys,idle)
-                        dice.log.info('Run time analytics for function '+func.__name__+' stored in CASCADE DB with runId:'+id)
-                        if dice.analyticsStatus and dice.singleRun:
-                            dice.analytics.addToAnalytics(id)
-                        else:
-                            dice.log.info('No graphs to be generated for: '+func.__name__)
-                    else:
-                        dice.log.info('No information saved as cascade decision engine was not selected')
-                else:
-                    #dice.log.error('Dice Instance Not Passed')
-                    raise Exception('Dice Instance Not Passed')
-            return runOffloadable
-        return intermediateOffloadable
+        self.trainer=Trainer(self.decisionEngine)
 
     def analyze(self):
         profilerConfig = self.profiler.getUpdatedProfile()
@@ -63,9 +39,62 @@ class Dice:
             data=self.cascadeDB.getCascadeData()
             self.analytics.analyze(data)
 
-    def train(self, func, n:int, inputs: list):
-        self.cascadeDB.setTrainMode(True)
-        self.trainer.train(func, n, inputs)
+    def train(self, main, inputs: list):
+        self.trainer.train(main, inputs)
 
+    @staticmethod
+    def createInputMetaData(metaData,*args,**kwargs):
+        json={}
+        idx=0
+        for var in metaData.keys():
+            val=kwargs.get(var,None)
+            if val!=None:
+                json[var]=str(val)
+            else:
+                json[var]=str(args[idx])
+                idx=idx+1
+        return json
+
+    def dispatch(self, dispatcher,json):
+        self.dispatcher=dispatcher
+        self.dispatcher.addInput(json)
+        self.dispatcher.offload()
+
+
+def offloadable(*args, **kwargs):
+    def intermediateOffloadable(func):
+        def runOffloadable(*args2, **kwargs2):
+            dice=kwargs.get('dice',None)
+            if dice:
+                dice.log.info('Beginning profiling process')
+                dice.profiler.startProfile()
+
+                dispatcher=kwargs.get('dispatcher')
+                metaData=dispatcher.getMetaData()
+                values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
+                offload=True if dice.decisionEngine.decide()==True else False
+                if(dice.decisionEngine.decide()): #decisionEnginedecision
+                    #dice.dispatch(dispatcher,values)
+                    time.sleep(1)
+                    func(*args2, **kwargs2)
+                else:
+                    func(*args2, **kwargs2)
+                dice.profiler.closeProfile()
+                runT,batteryS,batteryT,latency,ping,upload,download,user,sys,idle = dice.profiler.getProfilerSummary()
+                if dice.cascadeDB:
+                    id=dice.cascadeDB.addCascadeEntry(func.__name__,values,metaData,offload,2000,runT,batteryS,batteryT,\
+                                                      latency,ping,upload,download,user,sys,idle, dice.decisionEngine.getTrainMode())
+                    dice.log.info('Run time analytics for function '+func.__name__+' stored in CASCADE DB with runId:'+id)
+                    if dice.analyticsStatus and dice.singleRun:
+                        dice.analytics.addToAnalytics(id)
+                    else:
+                        dice.log.info('No graphs to be generated for: '+func.__name__)
+                else:
+                    dice.log.info('No information saved as cascade decision engine was not selected')
+            else:
+                #dice.log.error('Dice Instance Not Passed')
+                raise Exception('Dice Instance Not Passed')
+        return runOffloadable
+    return intermediateOffloadable
 if __name__=='__main__':
     pass

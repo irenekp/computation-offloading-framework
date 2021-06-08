@@ -58,3 +58,11 @@ class NetworkStats:
     ping: float
     upload: float
     download: float
+
+class InputType(enum.Enum):
+    VALUE =1
+    FILE =2
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_

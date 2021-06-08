@@ -20,7 +20,7 @@ constants for function_type values in constants.py
 
 import requests
 import logging
-import constants
+from diceLibrary import constants
 import json
 
 class Dispatcher:
@@ -32,21 +32,21 @@ class Dispatcher:
     _isInputFile: bool
     _isOutputFile: bool
     _function_type: int
+    _metaData: dict
     log = None
 
-    def __init__(self, _urlEndpoint = None, _inputFilePath = None, _outputFilePath = None, _inputArgs = None, _inputArgType = None):
+    def __init__(self, urlEndpoint = None, inputFilePath = None, outputFilePath = None, metaData=None):
         self.log = logging.getLogger()
 
 
         #init arguments
-        self._urlEndpoint = _urlEndpoint if _urlEndpoint is not None else None
-        self._inputFilePath = _inputFilePath if _inputFilePath is not None else None
-        self._outputFilePath = _outputFilePath if _outputFilePath is not None else None
-        self._inputArgs = _inputArgs if _inputArgs is not None else None
-        self._inputArgType = _inputArgType if _inputArgType is not None else None
+        self._urlEndpoint = urlEndpoint if urlEndpoint is not None else None
+        self._inputFilePath = inputFilePath if inputFilePath is not None else None
+        self._outputFilePath = outputFilePath if outputFilePath is not None else None
+        self._metaData=metaData
 
         #URL Endpoint is a required attr
-        if _urlEndpoint is None:
+        if urlEndpoint is None:
             self.log.error("URL Endpoint not specified")
             raise Exception("URL Endpoint not specified")
 
@@ -66,6 +66,21 @@ class Dispatcher:
         elif self._isInputFile and not self._isOutputFile:
             self._function_type = constants.INPUT_FILE_OUTPUT_VAL
 
+    def addInput(self, inputArgs):
+        self._inputArgs = inputArgs if inputArgs is not None else None
+
+    def offload(self):
+        if self._function_type==constants.INPUT_VAL_OUTPUT_VAL:
+            self.offload_Val_Val()
+        if self._function_type==constants.INPUT_VAL_OUTPUT_FILE:
+            self.offload_Val_File()
+        if self._function_type==constants.INPUT_FILE_OUTPUT_VAL:
+            self.offload_File_Val()
+        if self._function_type==constants.INPUT_FILE_OUTPUT_FILE:
+            self.offload_File_File()
+
+    def getMetaData(self):
+        return self._metaData
 
     def offload_File_File(self):
        # Logger.info(msg="Dispatcher set to offload with inputFile, outputFile config")

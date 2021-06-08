@@ -14,9 +14,12 @@ class DecisionEngine:
     dB=None
     data=None
     funcNames = None
+    trainMode=False
+    offload=False
+
     def __init__(self):
         self.dB=cascadeDatabase()
-        self.data=self.dB.getCascadeData()
+        #self.data=self.dB.getCascadeData(train)
 
     def prepareInput(self):
         self.data.at[0,'functionName']='func2'
@@ -79,6 +82,18 @@ class DecisionEngine:
         y_pred = clf.predict(X_test)
         print(y_pred)
 
+    def setOffload(self, ip: bool):
+        self.offload=ip
+
+    def setTrainMode(self, ip: bool):
+        self.trainMode=ip
+
+    def getTrainMode(self):
+        return self.trainMode
+
+    def decide(self):
+        if self.trainMode:
+            return self.offload
 
 if __name__=="__main__":
     dc=DecisionEngine()
