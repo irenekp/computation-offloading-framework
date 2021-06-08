@@ -9,6 +9,10 @@ from bokeh.transform import transform
 from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, ColumnDataSource
 from diceLibrary.settings import ProfilerConfig, AnalyticsConfig
 from bokeh.palettes import Viridis256
+from bokeh.embed import file_html
+from bokeh.resources import CDN
+
+
 import logging
 class Analytics:
     log=None
@@ -79,7 +83,7 @@ class Analytics:
 
 
     def singleRunAnalytics(self,singleRun):
-        output_file('plots.html')
+        output_file('templates/plots.html')
         plots=list()
         funcNames=list(set(singleRun.functionName))
         if len(funcNames)<=0:
@@ -92,6 +96,13 @@ class Analytics:
             xOffset=0
             legend=['Run Time']
             title='Function v Run Time'
+
+            #Separately saving runtime graphs in a html file
+            html_run = file_html(self.createBarChart(data, xOffset, legend, title, palette=True), CDN, 'something')
+            file = open("templates/runtime.html", 'w')
+            for line in html_run:
+                file.write(line)
+
             plots.append(self.createBarChart(data,xOffset,legend,title, palette=True))
         #Battery Time
         if ProfilerConfig.ENERGY in self.profilerConfig:
@@ -100,22 +111,45 @@ class Analytics:
             xOffset2=0
             legend2=['Battery Time']
             title2='Function v Battery Time'
+
+            #Separately saving battery graphs in a html file
+            html_battery = file_html(self.createBarChart(data2,xOffset2,legend2,title2, palette=True,offset=1), CDN, 'something')
+            file = open("templates/energy.html", 'w')
+            for line in html_battery:
+                file.write(line)
+
             plots.append(self.createBarChart(data2,xOffset2,legend2,title2, palette=True,offset=1))
         #Network Stats
         if ProfilerConfig.NETWORK in self.profilerConfig:
             nwStats=['upload','download','latency','ping']
             data3={'xAxis':funcNames}
             xOffset=-0.25
+
+            #Separately saving network graphs in a html file
+            html_network = file_html(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500), CDN, 'something')
+            file = open("templates/network.html", 'w')
+            for line in html_network:
+                file.write(line)
+
             for stat in nwStats:
                 xList=list()
                 for f in funcNames:
                     xList.append(list(singleRun[singleRun.functionName==f][stat])[0])
                 data3[stat]=xList
             plots.append(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500))
+
+        #CPU Stats
         if ProfilerConfig.CPU in self.profilerConfig:
             cpuStats=['userCPU','systemCPU','idleCPU']
             data4={'xAxis':funcNames}
             xOffset=-0.25
+
+            # Separately saving CPU graphs in a html file
+            html_cpu = file_html(self.createBarChart(data4,xOffset,cpuStats,'CPUStats v Functions',500), CDN, 'something')
+            file = open("templates/cpu.html", 'w')
+            for line in html_cpu:
+                file.write(line)
+
             for stat in cpuStats:
                 xList=list()
                 for f in funcNames:
@@ -123,11 +157,12 @@ class Analytics:
                 data4[stat]=xList
             plots.append(self.createBarChart(data4,xOffset,cpuStats,'CPUStats v Functions',500))
         grid = gridplot(plots, ncols=2)
+
         show(grid)
 
     def summaryAnalytics(self,data):
         # prepare some data
-        output_file('plots.html')
+        output_file('templates/plots.html')
         #curdoc().theme = 'dark_minimal'
         funcNames=list(set(data.functionName))
         if len(funcNames)<=0:
@@ -146,7 +181,7 @@ class Analytics:
                     y=[ylocaltime,yremotetime]
                     p=self.createLineChart(x,y,f+' '+self.legend[stat]+' vs '+self.legend[yAxis],[yAxis,stat])
                     plots.append(p)
-        grid = gridplot(plots, ncols=len(funcNames), plot_width=300, plot_height=300)
+        grid = gridplot(plots, ncols=5, plot_width=300, plot_height=300)
         show(grid)
 
     def createLineChart(self,x,y,title,label):
