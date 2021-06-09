@@ -55,8 +55,6 @@ class cascadeDatabase:
         dataSize FLOAT,
         batteryStartTime FLOAT,
         latency FLOAT,
-        upload FLOAT,
-        download FLOAT,
         PRIMARY KEY (id)
         )
         '''.format(self.trainTableName))
@@ -85,6 +83,13 @@ class cascadeDatabase:
         conn.commit()
         conn.close()
         return id
+
+    def addTrainingEntry(self, func, ipTypes, ipValues, offload, dataSize, batteryStartTime, latency):
+        conn = sqlite3.connect(self.dbName)
+        conn.execute('''
+        INSERT INTO {} (functionName,inputTypes, inputValues, offload, dataSize, batteryStartTime, latency) VALUES (?,?,?,?,?,?,?)'''.format(self.trainTableName),(func, ipTypes, ipValues, offload, dataSize, batteryStartTime, latency))
+        conn.commit()
+        conn.close()
 
     def getCascadeData(self, train=False):
         conn = sqlite3.connect(self.dbName)
