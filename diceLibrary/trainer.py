@@ -11,16 +11,33 @@ class Trainer:
         self.decisionEngine=decisionEngine
 
     def decide(self,local,offloaded):
-        return 1
+        rt=abs(local['runTime']-float(offloaded['runTime']))
+        bt=abs(local['batteryTime']-float(offloaded['batteryTime']))
+        ct=abs(local['CPU']-float(offloaded['CPU']))
+        offloadVotes=0
+        localVotes=0
+        if local['runTime']>float(offloaded['runTime']):
+            offloadVotes+=rt
+        else:
+            localVotes+=rt
+        if local['batteryTime']>float(offloaded['batteryTime']):
+            offloadVotes+=bt
+        else:
+            localVotes+=bt
+        if local['CPU']>float(offloaded['CPU']):
+            offloadVotes+=ct
+        else:
+            localVotes+=ct
+        if localVotes>offloadVotes:
+            return 0
+        else:
+            return 1
 
     def cascadeTrainer(self):
         dB=cascadeDatabase()
         df=dB.getCascadeData()
         df=df[df['training']==1]
         df['CPU']=df['userCPU']+df['systemCPU']+df['idleCPU']
-        cols=['runTime','batteryStartTime','latency','CPU']
-        for col in cols:
-            df[col]=(df[col]-df[col].min())/(df[col].max()-df[col].min())
         funcs=set(list(df['functionName']))
         for func in funcs:
             funcDf=df[df['functionName']==func]
@@ -30,9 +47,7 @@ class Trainer:
                              & (df['dataSize']==row['dataSize'])]
                 decision=self.decide(row,offloaded)
                 dB.addTrainingEntry(row['functionName'],row['inputTypes'],row['inputValues'],decision,row['dataSize'],row['batteryStartTime'],\
-                                    row['latency'])
-
-        print(df)
+                                    row['upload'], row['download'])
 
     def train(self,func, inputs: list):
         self.decisionEngine.setTrainMode(True)
@@ -55,6 +70,5 @@ class Trainer:
 
 if __name__=='__main__':
     t=Trainer(1)
-    precedence=[ProfilerConfig.RUNTIME, ProfilerConfig.ENERGY, ProfilerConfig.NETWORK]
     t.cascadeTrainer()
     print('end')

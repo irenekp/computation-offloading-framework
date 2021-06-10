@@ -74,9 +74,7 @@ def offloadable(*args, **kwargs):
                 values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
                 offload=True if dice.decisionEngine.decide()==True else False
                 if(dice.decisionEngine.decide()): #decisionEnginedecision
-                    #dice.dispatch(dispatcher,values)
-                    time.sleep(1)
-                    func(*args2, **kwargs2)
+                    dice.dispatch(dispatcher,values)
                 else:
                     func(*args2, **kwargs2)
                 dice.profiler.closeProfile()

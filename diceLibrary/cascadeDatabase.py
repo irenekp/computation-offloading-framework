@@ -47,15 +47,15 @@ class cascadeDatabase:
         self.log.info("Created Table: "+self.tableName)
         conn.execute('''
         create table if not exists {} (
-        id INT AUTO_INCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         functionName varchar(255) NOT NULL,
         inputTypes varchar(255),
         inputValues varchar(255),
         offload BIT NOT NULL,
         dataSize FLOAT,
         batteryStartTime FLOAT,
-        latency FLOAT,
-        PRIMARY KEY (id)
+        upload FLOAT,
+        download FLOAT
         )
         '''.format(self.trainTableName))
         conn.close()
@@ -84,10 +84,11 @@ class cascadeDatabase:
         conn.close()
         return id
 
-    def addTrainingEntry(self, func, ipTypes, ipValues, offload, dataSize, batteryStartTime, latency):
+    def addTrainingEntry(self, func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download):
         conn = sqlite3.connect(self.dbName)
         conn.execute('''
-        INSERT INTO {} (functionName,inputTypes, inputValues, offload, dataSize, batteryStartTime, latency) VALUES (?,?,?,?,?,?,?)'''.format(self.trainTableName),(func, ipTypes, ipValues, offload, dataSize, batteryStartTime, latency))
+        INSERT INTO {} (functionName,inputTypes, inputValues, offload, dataSize, batteryStartTime, upload, download) VALUES (?,?,?,?,?,?,?,?)'''.format(self.trainTableName),\
+                     (func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download))
         conn.commit()
         conn.close()
 
@@ -100,5 +101,6 @@ class cascadeDatabase:
 
 if __name__ == '__main__':
     dB=cascadeDatabase()
-    data=dB.getCascadeData(True)
+    data=dB.getCascadeData()
+    data=dB.getCascadeData(train=True)
     print('end')
