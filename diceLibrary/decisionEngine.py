@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
-
+from pickle import load, dump
 
 class DecisionEngine:
     dB=None
@@ -77,10 +77,14 @@ class DecisionEngine:
     def logisticRegression(self):
         df_ohe = self.prepareInput()
         X_train,X_test,y_train,y_test, colNames=self.getTestTrain(df_ohe)
-        logreg = LogisticRegression()
-        # fit the model with data
-        logreg.fit(X_train,y_train)
-        y_pred=logreg.predict(X_test)
+        try:
+           logreg = load(open('logreg.pkl', 'rb'))
+        except:
+            logreg = LogisticRegression()
+            # fit the model with data
+            logreg.fit(X_train,y_train)
+            dump(logreg, open('logreg.pkl', 'wb'))
+        y_pred = logreg.predict(X_test)
         return logreg, colNames
 
     def kNearestNeighbours(self):
@@ -132,6 +136,19 @@ class DecisionEngine:
     def decide(self):
         if self.trainMode:
             return self.offload
+        else:
+            dc = DecisionEngine()
+            alg, colNames = dc.logisticRegression()
+            ipTypes = '1'
+            ipValues = '5'
+            dataSize = 2000
+            batteryStartTime = 4200
+            upload = 103
+            download = 103
+            funcName = 'myFunc'
+            result = dc.predict(alg, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName,
+                                colNames)
+            return result
 
     def predict(self, alg, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName, colNames):
         inputTypes=self.dB.toList(ipTypes)
@@ -155,7 +172,7 @@ class DecisionEngine:
 
 if __name__=="__main__":
     dc=DecisionEngine()
-    alg, colNames=dc.decisionTree()
+    alg, colNames=dc.logisticRegression()
     ipTypes='1'
     ipValues='5'
     dataSize=2000

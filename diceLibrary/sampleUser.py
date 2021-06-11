@@ -26,5 +26,5 @@ def myFunc(n):
 
 
 if __name__ == "__main__":
-    dice.train(myFunc, [(5,),(6,),(7,),(8,),(9,),(10,)])
-    myFunc(4)
+    dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
+    myFunc(11)

@@ -73,7 +73,7 @@ def offloadable(*args, **kwargs):
                 metaData=dispatcher.getMetaData()
                 values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
                 offload=True if dice.decisionEngine.decide()==True else False
-                if(dice.decisionEngine.decide()): #decisionEnginedecision
+                if(dice.decisionEngine.decide() == 1): #decisionEnginedecision
                     dice.dispatch(dispatcher,values)
                 else:
                     func(*args2, **kwargs2)
