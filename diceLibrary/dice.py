@@ -1,10 +1,11 @@
 from diceLibrary.profiler import Profiler
 from diceLibrary.logger import Logger
-from diceLibrary.settings import DecisionEngineConfig, AnalyticsConfig
+from diceLibrary.settings import DecisionEngineConfig, AnalyticsConfig, InputType
 from diceLibrary.cascadeDatabase import cascadeDatabase
 from diceLibrary.analytics import Analytics
 from diceLibrary.decisionEngine import DecisionEngine
 from diceLibrary.trainer import Trainer
+from diceLibrary.dispatcher import Dispatcher
 import time
 class Dice:
     config=None
@@ -40,6 +41,7 @@ class Dice:
 
     def train(self, main, inputs: list):
         self.trainer.train(main, inputs)
+        self.trainer.cascadeTrainer()
 
     @staticmethod
     def createInputMetaData(metaData,*args,**kwargs):
@@ -53,6 +55,25 @@ class Dice:
                 json[var]=str(args[idx])
                 idx=idx+1
         return json
+
+    @staticmethod
+    def getInputTypeAndValue(metaData, values):
+        types = ''
+        for key, val in metaData.items():
+            if len(types) == 0:
+                types = str(val)
+            else:
+                types = types + ', ' + str(val)
+
+        ipvals = ''
+        for key, val in values.items():
+            if len(ipvals) == 0:
+                ipvals = str(val)
+            else:
+                ipvals = ipvals + ', ' + str(val)
+
+        return types, ipvals
+
 
     def dispatch(self, dispatcher,json):
         self.dispatcher=dispatcher
@@ -71,12 +92,14 @@ def offloadable(*args, **kwargs):
                 dispatcher=kwargs.get('dispatcher')
                 metaData=dispatcher.getMetaData()
                 values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
-                #getting data size if file
-                if metaData['n'].value == 1:
-                    dataSize = None
-                else: dataSize = diceLibrary.dispatcher.getDataSize(filepath=values['n'])
-                offload=True if dice.decisionEngine.decide(ipTypes=metaData['n'].value, ipValues=values['n'], dataSize=dataSize, batteryStartTime=batteryS, upload=upload, download=download,funcName=func.__name__)==True else False
-                if(dice.decisionEngine.decide() == 1): #decisionEnginedecision
+                #getting data size of file
+                ipTypes, ipValues = Dice.getInputTypeAndValue(metaData, values)
+                dataSize = 0
+                for key, value in metaData.items():
+                    if value == InputType.FILE:
+                        dataSize = dataSize + Dispatcher.getDataSize(values[key])
+                offload=True if dice.decisionEngine.decide(ipTypes=ipTypes, ipValues=ipValues, dataSize=dataSize, batteryStartTime=batteryS, upload=upload, download=download,funcName=func.__name__)==True else False
+                if(offload): #decisionEnginedecision
                     dice.dispatch(dispatcher,values)
                 else:
                     func(*args2, **kwargs2)

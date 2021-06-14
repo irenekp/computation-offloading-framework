@@ -27,7 +27,5 @@ def myFunc(n):
 
 
 if __name__ == "__main__":
-    #dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
-    #trainer.cascadeTrainer()
-    myFunc(9)
+    dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
     print('end')
