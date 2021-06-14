@@ -98,6 +98,18 @@ class cascadeDatabase:
         df = pd.read_sql_query("SELECT * FROM "+tableName, conn)
         return df
 
+    def exportToCSV(self, train=False):
+        conn = sqlite3.connect(self.dbName)
+        tableName = self.trainTableName if train else self.tableName
+        df = pd.read_sql_query("SELECT * FROM " + tableName, conn)
+        #export df to csv
+        file_name = datetime.now().strftime('%m/%d/%YT%H:%M:%S')
+        df.to_csv(file_name, encoding='utf-8', index=False)
+
+    def deleteAllData(self, train=False):
+        conn = sqlite3.connect(self.dbName)
+        tableName = self.trainTableName if train else self.tableName
+        conn.execute("DELETE FROM " + tableName)
 
 if __name__ == '__main__':
     dB=cascadeDatabase()

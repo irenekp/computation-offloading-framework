@@ -22,6 +22,7 @@ import requests
 import logging
 from diceLibrary import constants
 import json
+import os
 
 class Dispatcher:
     _urlEndpoint: str
@@ -81,6 +82,10 @@ class Dispatcher:
 
     def getMetaData(self):
         return self._metaData
+
+    @staticmethod
+    def getDataSize(self, filepath):
+        return os.path.getsize(filepath)
 
     def offload_File_File(self):
        # Logger.info(msg="Dispatcher set to offload with inputFile, outputFile config")

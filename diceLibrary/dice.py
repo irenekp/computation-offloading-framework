@@ -67,11 +67,15 @@ def offloadable(*args, **kwargs):
             if dice:
                 dice.log.info('Beginning profiling process')
                 dice.profiler.startProfile()
-
+                batteryS, upload, download = dice.profiler.getTrainingSummary()
                 dispatcher=kwargs.get('dispatcher')
                 metaData=dispatcher.getMetaData()
                 values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
-                offload=True if dice.decisionEngine.decide()==True else False
+                #getting data size if file
+                if metaData['n'].value == 1:
+                    dataSize = None
+                else: dataSize = diceLibrary.dispatcher.getDataSize(filepath=values['n'])
+                offload=True if dice.decisionEngine.decide(ipTypes=metaData['n'].value, ipValues=values['n'], dataSize=dataSize, batteryStartTime=batteryS, upload=upload, download=download,funcName=func.__name__)==True else False
                 if(dice.decisionEngine.decide() == 1): #decisionEnginedecision
                     dice.dispatch(dispatcher,values)
                 else:
@@ -93,5 +97,6 @@ def offloadable(*args, **kwargs):
                 raise Exception('Dice Instance Not Passed')
         return runOffloadable
     return intermediateOffloadable
+
 if __name__=='__main__':
     pass

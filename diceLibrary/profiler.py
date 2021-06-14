@@ -151,6 +151,15 @@ class Profiler:
             idle=self.cpu.idle
         return runT,batteryS,batteryT,latency,ping,upload,download,user,sys,idle
 
+    def getTrainingSummary(self):
+        batteryS,upload,download=None, None, None
+        if self._energyEnabled:
+            batteryS = self.batteryStats.startBatteryTime
+        if self._networkEnabled:
+            upload = self.networkStats.upload
+            download = self.networkStats.download
+        return batteryS, upload, download
+
     def getUpdatedProfile(self):
         updatedConfig = []
         if self._runtimeEnabled:

@@ -227,7 +227,7 @@ class DecisionEngine:
     def getTrainMode(self):
         return self.trainMode
 
-    def decide(self):
+    def decide(self, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName):
         if self.trainMode:
             return self.offload
         else:
@@ -255,13 +255,6 @@ class DecisionEngine:
                 algs.append(alg)
                 cNs.append(colNames)
             for idx, alg in enumerate(algs):
-                ipTypes = '1'
-                ipValues = '5'
-                dataSize = 2000
-                batteryStartTime = 4200
-                upload = 103
-                download = 103
-                funcName = 'myFunc'
                 result.append(dc.predict(alg, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName,
                                     cNs[idx]))
             return mode(result)

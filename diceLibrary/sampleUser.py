@@ -4,7 +4,7 @@ from diceLibrary.dice import Dice
 from itertools import permutations
 from diceLibrary.dice import offloadable
 from diceLibrary.dispatcher import Dispatcher
-
+from diceLibrary.trainer import Trainer
 
 x = DiceConfig()
 x.setProfilerConfig([ProfilerConfig.ENERGY, ProfilerConfig.RUNTIME, ProfilerConfig.CPU, ProfilerConfig.NETWORK])
@@ -25,6 +25,9 @@ def myFunc(n):
             print(vec)
 
 
+
 if __name__ == "__main__":
-    dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
-    myFunc(11)
+    #dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
+    #trainer.cascadeTrainer()
+    myFunc(9)
+    print('end')
