@@ -23,9 +23,8 @@ class Dice:
         self.log=Logger(config.getLoggerConfig())
         self.profiler=Profiler(config.getProfilerConfig(), self.log)
         if config.getDecisionEngineConfig():
-            if DecisionEngineConfig.CASCADE in config.getDecisionEngineConfig():
-                self.cascadeDB=cascadeDatabase()
-            self.decisionEngine=DecisionEngine()
+            self.cascadeDB=cascadeDatabase()
+            self.decisionEngine=DecisionEngine(config.getDecisionEngineConfig())
         self.analyticsStatus=config.isAnalyticsEnabled()
         if self.analyticsStatus:
             self.singleRun=AnalyticsConfig.CURRENTRUN in config.getAnalyticSetting()

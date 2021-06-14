@@ -10,7 +10,12 @@ class ProfilerConfig(enum.Enum):
         return value in cls._value2member_map_
 
 class DecisionEngineConfig(enum.Enum):
-    CASCADE =1
+    CASCADE = 1
+    LOGREG = 2
+    DECTREE = 3
+    SVM = 4
+    RANDFRST = 5
+    KNN = 6
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_
