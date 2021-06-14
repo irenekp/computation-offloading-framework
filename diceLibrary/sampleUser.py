@@ -16,7 +16,7 @@ serverLink="http://ec2-18-219-235-10.us-east-2.compute.amazonaws.com:8080/getNQu
 metaData={'n':InputType.VALUE}
 dispatcher1=Dispatcher(serverLink, metaData=metaData)
 @offloadable(dice=dice, dispatcher=dispatcher1)
-def myFunc(n):
+def nQueens(n):
     n = int(n)
     cols = range(n)
     for vec in permutations(cols):
@@ -27,5 +27,13 @@ def myFunc(n):
 
 
 if __name__ == "__main__":
-    dice.train(myFunc, [(6, ),(7,),(8,),(9,),(10,),(11,)])
+    #dice.train(nQueens, [(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,),(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,),(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,)])
+    print("Running 2")
+    nQueens(2)
+    print("Running 5")
+    nQueens(5)
+    print("Running 11")
+    nQueens(11)
+    print("Running 7")
+    nQueens(7)
     print('end')

@@ -61,9 +61,9 @@ class Dice:
         types = ''
         for key, val in metaData.items():
             if len(types) == 0:
-                types = str(val)
+                types = str(val.value)
             else:
-                types = types + ', ' + str(val)
+                types = types + ', ' + str(val.value)
 
         ipvals = ''
         for key, val in values.items():

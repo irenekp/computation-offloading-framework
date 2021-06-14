@@ -55,7 +55,8 @@ class cascadeDatabase:
         dataSize FLOAT,
         batteryStartTime FLOAT,
         upload FLOAT,
-        download FLOAT
+        download FLOAT,
+        runTime FLOAT
         )
         '''.format(self.trainTableName))
         conn.close()
@@ -84,11 +85,11 @@ class cascadeDatabase:
         conn.close()
         return id
 
-    def addTrainingEntry(self, func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download):
+    def addTrainingEntry(self, func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download, runTime):
         conn = sqlite3.connect(self.dbName)
         conn.execute('''
-        INSERT INTO {} (functionName,inputTypes, inputValues, offload, dataSize, batteryStartTime, upload, download) VALUES (?,?,?,?,?,?,?,?)'''.format(self.trainTableName),\
-                     (func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download))
+        INSERT INTO {} (functionName,inputTypes, inputValues, offload, dataSize, batteryStartTime, upload, download, runTime) VALUES (?,?,?,?,?,?,?,?, ?)'''.format(self.trainTableName),\
+                     (func, ipTypes, ipValues, offload, dataSize, batteryStartTime, upload, download, runTime))
         conn.commit()
         conn.close()
 
@@ -103,7 +104,11 @@ class cascadeDatabase:
         tableName = self.trainTableName if train else self.tableName
         df = pd.read_sql_query("SELECT * FROM " + tableName, conn)
         #export df to csv
-        file_name = datetime.now().strftime('%m/%d/%YT%H:%M:%S')
+        if train:
+            pre='TRAIN'
+        else:
+            pre='FULL'
+        file_name = pre+datetime.now().strftime('%m_%d_%YT%H_%M_%S')+'.csv'
         df.to_csv(file_name, encoding='utf-8', index=False)
 
     def deleteAllData(self, train=False):
@@ -113,6 +118,6 @@ class cascadeDatabase:
 
 if __name__ == '__main__':
     dB=cascadeDatabase()
-    data=dB.getCascadeData()
-    data=dB.getCascadeData(train=True)
+    dB.exportToCSV()
+    dB.exportToCSV(True)
     print('end')
