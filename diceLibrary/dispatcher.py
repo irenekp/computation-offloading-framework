@@ -83,6 +83,9 @@ class Dispatcher:
     def getMetaData(self):
         return self._metaData
 
+    def getIpFilePath(self):
+        return self._inputFilePath
+
     @staticmethod
     def getDataSize(self, filepath):
         return os.path.getsize(filepath)
@@ -93,10 +96,12 @@ class Dispatcher:
         files = {'file': open(self._inputFilePath, 'rb')}
         response = requests.post(url = api_url, files = files)
         response.raise_for_status()
-        file = open(self._outputFilePath, 'w')
-        file.write(response.text)
+        file = open(self._outputFilePath, 'wb')
+        file.write(response.content)
         file.close()
-        return response.text
+        print("FINISHED WRITING TO FILE")
+        return
+
 
     def offload_Val_Val(self):
         #Logger.info(msg="Dispatcher set to offload with input arguments, output arguments config")
@@ -111,7 +116,7 @@ class Dispatcher:
         data = self._inputArgs
         response = requests.post(url = api_url, json = data)
         response.raise_for_status()
-        file = open(self._outputFilePath, 'w')
+        file = open(self._outputFilePath, 'wb')
         file.write(response.text)
         file.close()
         return response.text
@@ -122,3 +127,5 @@ class Dispatcher:
         files = {'file': open(self._inputFilePath, 'rb')}
         response = requests.post(url = api_url, files = files)
         return response.text
+
+

@@ -92,13 +92,15 @@ def offloadable(*args, **kwargs):
                 dispatcher=kwargs.get('dispatcher')
                 metaData=dispatcher.getMetaData()
                 values=Dice.createInputMetaData(metaData,*args2,**kwargs2)
-                #getting data size of file
                 ipTypes, ipValues = Dice.getInputTypeAndValue(metaData, values)
                 dataSize = 0
                 for key, value in metaData.items():
                     if value == InputType.FILE:
-                        dataSize = dataSize + Dispatcher.getDataSize(values[key])
+                        dataSize = dataSize + Dispatcher.getDataSize(dispatcher.getIpFilePath())
+                #if not dice.profiler.checkInternet():
+                    #offload = False
                 offload=True if dice.decisionEngine.decide(ipTypes=ipTypes, ipValues=ipValues, dataSize=dataSize, batteryStartTime=batteryS, upload=upload, download=download,funcName=func.__name__)==True else False
+
                 if(offload): #decisionEnginedecision
                     dice.dispatch(dispatcher,values)
                 else:
@@ -106,11 +108,12 @@ def offloadable(*args, **kwargs):
                 dice.profiler.closeProfile()
                 runT,batteryS,batteryT,latency,ping,upload,download,user,sys,idle = dice.profiler.getProfilerSummary()
                 if dice.cascadeDB:
-                    id=dice.cascadeDB.addCascadeEntry(func.__name__,values,metaData,offload,2000,runT,batteryS,batteryT,\
+                    id=dice.cascadeDB.addCascadeEntry(func.__name__,values,metaData,offload,dataSize,runT,batteryS,batteryT,\
                                                       latency,ping,upload,download,user,sys,idle, dice.decisionEngine.getTrainMode())
                     dice.log.info('Run time analytics for function '+func.__name__+' stored in CASCADE DB with runId:'+id)
                     if dice.analyticsStatus and dice.singleRun:
                         dice.analytics.addToAnalytics(id)
+                        dice.analyze()
                     else:
                         dice.log.info('No graphs to be generated for: '+func.__name__)
                 else:

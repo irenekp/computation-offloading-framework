@@ -3,6 +3,7 @@ from datetime import datetime
 import speedtest
 import psutil
 import copy
+import socket
 
 class Profiler:
     _profilerEnabled: bool
@@ -113,9 +114,6 @@ class Profiler:
             self.runTime.startTime=datetime.now()
             self.log.info('Start Time:'+str(self.runTime.startTime))
 
-
-
-
     def closeProfile(self):
         if self._runtimeEnabled:
             self.runTime.endTime=datetime.now()
@@ -171,3 +169,14 @@ class Profiler:
         if self._energyEnabled:
             updatedConfig.append(ProfilerConfig.ENERGY)
         return updatedConfig
+
+    def checkInternet(self):
+        try:
+            socket.create_connection(("8.8.8.8"))
+            return True
+        except:
+            return False
+
+
+    if __name__ == "__main__":
+        pass

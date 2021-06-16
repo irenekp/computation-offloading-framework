@@ -29,6 +29,10 @@ class cascade:
         cols.remove('inputValues')
         return cols
 
+    def oldCascade(self):
+        #checking inputTypes for file:
+        print(self.cascadeData['inputTypes'].value)
+
     def getDistance(self, row1, row2, funcName, ipVals):
         distance=0
         result=0
@@ -87,6 +91,7 @@ class DecisionEngine:
             if i==InputType.VALUE.value:
                 ret.append(idx)
         return ret
+
 
     def prepareInput(self):
         if self.preparedInput is not None:
