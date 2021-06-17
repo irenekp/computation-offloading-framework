@@ -3,7 +3,7 @@ from bokeh.models import HoverTool
 from bokeh.transform import dodge
 from bokeh.layouts import gridplot
 from diceLibrary.cascadeDatabase import cascadeDatabase
-from bokeh.io import show
+from bokeh.io import show, save
 from bokeh.transform import transform
 from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, ColumnDataSource
 from diceLibrary.settings import ProfilerConfig, AnalyticsConfig
@@ -103,6 +103,7 @@ class Analytics:
                 file.write(line)
 
             plots.append(self.createBarChart(data,xOffset,legend,title, palette=True))
+
         #Battery Time
         if ProfilerConfig.ENERGY in self.profilerConfig:
             batteryTime=list(singleRun['batteryTime'])
@@ -118,17 +119,12 @@ class Analytics:
                 file.write(line)
 
             plots.append(self.createBarChart(data2,xOffset2,legend2,title2, palette=True,offset=1))
+
         #Network Stats
         if ProfilerConfig.NETWORK in self.profilerConfig:
             nwStats=['upload','download','latency','ping']
             data3={'xAxis':funcNames}
             xOffset=-0.25
-
-            #Separately saving network graphs in a html file
-            html_network = file_html(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500), CDN, 'something')
-            file = open('templates/network.html', 'w')
-            for line in html_network:
-                file.write(line)
 
             for stat in nwStats:
                 xList=list()
@@ -137,18 +133,23 @@ class Analytics:
                 data3[stat]=xList
             plots.append(self.createBarChart(data3,xOffset,nwStats,'Network Stats v Functions',500))
 
+            # Separately saving network graphs and CPU graphs in a html file
+            html_network = file_html(self.createBarChart(data3, xOffset, nwStats, 'Network Stats v Functions', 500),
+                                     CDN,
+                                     'something')
+            file = open('templates/network.html', 'w')
+            for line in html_network:
+                file.write(line)
+
+
         #CPU Stats
         if ProfilerConfig.CPU in self.profilerConfig:
             cpuStats=['userCPU','systemCPU','idleCPU']
+            cpuTotal = singleRun['userCPU']+singleRun['idleCPU']+singleRun['systemCPU']
             data4={'xAxis':funcNames}
             xOffset=-0.25
 
             # Separately saving CPU graphs in a html file
-            html_cpu = file_html(self.createBarChart(data4,xOffset,cpuStats,'CPUStats v Functions',500), CDN, 'something')
-            file = open('templates/cpu.html', 'w')
-            for line in html_cpu:
-                file.write(line)
-
             for stat in cpuStats:
                 xList=list()
                 for f in funcNames:
@@ -157,7 +158,13 @@ class Analytics:
             plots.append(self.createBarChart(data4,xOffset,cpuStats,'CPUStats v Functions',500))
         grid = gridplot(plots, ncols=2)
 
-        show(grid)
+        html_cpu = file_html(self.createBarChart(data4, xOffset, cpuStats, 'CPUStats v Functions', 500), CDN,
+                             'something')
+        file = open('templates/cpu.html', 'w')
+        for line in html_cpu:
+            file.write(line)
+
+        save(grid)
 
     def summaryAnalytics(self,data):
         # prepare some data
@@ -181,7 +188,7 @@ class Analytics:
                     p=self.createLineChart(x,y,f+' '+self.legend[stat]+' vs '+self.legend[yAxis],[yAxis,stat])
                     plots.append(p)
         grid = gridplot(plots, ncols=5, plot_width=300, plot_height=300)
-        show(grid)
+        save(grid)
 
     def createLineChart(self,x,y,title,label):
         # create a new plot with a title and axis labels
@@ -223,7 +230,7 @@ class Analytics:
                      )
             xOffset=xOffset+0.20
         tooltips = [
-            ('Function Name', '@x'),
+            ('Function Name', data['xAxis'][0]),
         ]
         plt.add_tools(HoverTool(tooltips=tooltips))
         #Signing the axis

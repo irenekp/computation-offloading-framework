@@ -91,7 +91,6 @@ class Dispatcher:
         return os.path.getsize(filepath)
 
     def offload_File_File(self):
-       # Logger.info(msg="Dispatcher set to offload with inputFile, outputFile config")
         api_url = self._urlEndpoint
         files = {'file': open(self._inputFilePath, 'rb')}
         response = requests.post(url = api_url, files = files)
@@ -122,7 +121,6 @@ class Dispatcher:
         return response.text
 
     def offload_File_Val(self):
-       # Logger.info(msg="Dispatcher set to offload with inputFile, output arguments config")
         api_url = self._urlEndpoint
         files = {'file': open(self._inputFilePath, 'rb')}
         response = requests.post(url = api_url, files = files)

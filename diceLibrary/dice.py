@@ -6,6 +6,8 @@ from diceLibrary.analytics import Analytics
 from diceLibrary.decisionEngine import DecisionEngine
 from diceLibrary.trainer import Trainer
 from diceLibrary.dispatcher import Dispatcher
+import diceLibrary.app as analyticsApp
+
 import time
 class Dice:
     config=None
@@ -38,6 +40,8 @@ class Dice:
         if self.analyticsStatus:
             data=self.cascadeDB.getCascadeData()
             self.analytics.analyze(data)
+        analyticsApp.main()
+
 
     def train(self, main, inputs: list):
         self.trainer.train(main, inputs)
@@ -114,6 +118,7 @@ def offloadable(*args, **kwargs):
                     if dice.analyticsStatus and dice.singleRun:
                         dice.analytics.addToAnalytics(id)
                         dice.analyze()
+                        dice.log.info("Graphs will be available at analytics page: http://localhost:8080/analyticsPage")
                     else:
                         dice.log.info('No graphs to be generated for: '+func.__name__)
                 else:

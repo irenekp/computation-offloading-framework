@@ -122,7 +122,7 @@ class Profiler:
             self.log.info('End of Runtime:'+str(self.runTime.endTime)+' Total Runtime: '+str(self.runTime.runtime))
         if self._energyEnabled:
             self.getBatteryTime(start=False)
-            self.batteryStats.consumedBatteryTime=self.batteryStats.startBatteryTime-self.batteryStats.endBatteryTime
+            self.batteryStats.consumedBatteryTime=abs(self.batteryStats.startBatteryTime-self.batteryStats.endBatteryTime)
             self.log.info('Battery Time Consumed: '+str(self.batteryStats.consumedBatteryTime))
         if self._cpuEnabled:
             self.cpu.endStats=psutil.cpu_times()

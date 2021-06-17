@@ -110,18 +110,51 @@
                 <div class="col-md-3">
                     <nav class="docs-sidebar" data-spy="affix" data-offset-top="300" data-offset-bottom="200" role="navigation">
                         <ul class="nav">
-                            <li><a href="#line1">Introduction</a></li>
                             <li><a href="#line2">Analytics</a></li>
+                            <li><a href="#line1">About Us</a></li>
                             <li><a href="#line3">Documentation</a></li>
                             <li><a href="#line11">Additional Info</a></li>
                         </ul>
                     </nav >
                 </div>
                 <div class="col-md-9">
+
+
+                    <section id="line2" class="section">
+
+                        <div class="row">
+                            <div class="col-md-12 left-align">
+                                <h2 class="dark-text">Analytics <hr></h2>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                        <h4>Runtime Statistics</h4>
+                        <p>The following graphs were recorded during your last Cascade run. These signify xyz.</p>
+                         {% include 'runtime.html' %}
+
+                        <hr>
+                        <h4>Energy Statistics</h4>
+                        <p>Battery stats were enabled, and thus the following battery stats were calculated.</p>
+                        {% include 'energy.html' %}
+
+                        <hr>
+                        <h4>CPU Statistics</h4>
+                        <p>CPU statistics we tracked show the following information.</p>
+                        {% include 'cpu.html' %}
+
+                        <hr>
+                        <h4>Network Statistics</h4>
+                        <p>Network statistics were enabled. Following analytics were generated.</p>
+                        {% include 'network.html' %}
+
+                    </section>
+                    <!-- end section -->
+
                     <section id = "line1" class="welcome">
                         <div class="row">
                             <div class="col-md-12 left-align">
-                               <h2 class="dark-text">Introduction<hr></h2>
+                               <h2 class="dark-text">About Us<hr></h2>
                                 <div class="row">
 
                                       <div class="col-md-12 full">
@@ -159,38 +192,6 @@
                             </div>
                         </div>
                     </section>
-
-
-                    <section id="line2" class="section">
-
-                        <div class="row">
-                            <div class="col-md-12 left-align">
-                                <h2 class="dark-text">Analytics <hr></h2>
-                            </div>
-                            <!-- end col -->
-                        </div>
-                        <!-- end row -->
-                        <h4>Runtime Statistics</h4>
-                        <p>The following graphs were recorded during your last Cascade run. These signify xyz.</p>
-                         {% include 'runtime.html' %}
-
-                        <hr>
-                        <h4>Energy Statistics</h4>
-                        <p>Battery stats were enabled, and thus the following battery stats were calculated.</p>
-                        {% include 'energy.html' %}
-
-                        <hr>
-                        <h4>CPU Statistics</h4>
-                        <p>CPU statistics we tracked show the following information.</p>
-                        {% include 'cpu.html' %}
-
-                        <hr>
-                        <h4>Network Statistics</h4>
-                        <p>Network statistics were enabled. Following analytics were generated.</p>
-                        {% include 'network.html' %}
-
-                    </section>
-                    <!-- end section -->
 
                     <section id="line3" class="section">
 

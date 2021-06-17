@@ -14,6 +14,8 @@ import logging
 from diceLibrary.settings import DecisionEngineConfig
 from statistics import mode
 import sys
+import numpy as np
+
 class cascade:
     de=None
     cascadeData=None
@@ -28,10 +30,6 @@ class cascade:
         cols.remove('inputTypes')
         cols.remove('inputValues')
         return cols
-
-    def oldCascade(self):
-        #checking inputTypes for file:
-        print(self.cascadeData['inputTypes'].value)
 
     def getDistance(self, row1, row2, funcName, ipVals):
         distance=0
@@ -292,6 +290,7 @@ class DecisionEngine:
     def getTrainMode(self):
         return self.trainMode
 
+
     def decide(self, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName):
         if self.trainMode:
             return self.offload
@@ -361,6 +360,7 @@ class DecisionEngine:
             result=alg.predict(df, funcName, ipVals)
         else:
             df=pd.DataFrame(df, index=[0])
+            df.fillna(0, inplace=True)
             result=alg.predict(df)
         logOp='offloading' if result[0]==1 else 'local'
         self.log.info(str(type(alg))+' predicted to execute by:'+logOp)
