@@ -1,6 +1,6 @@
 import pandas as pd
 from diceLibrary.cascadeDatabase import cascadeDatabase
-from diceLibrary.settings import InputType
+from diceLibrary.settings import InputType, findClosest
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -31,6 +31,26 @@ class cascade:
         cols.remove('inputValues')
         return cols
 
+    def oldCascade(self, df, funcName, ipVals):
+        x=self.cascadeData[self.cascadeData[funcName]==1]
+        x=x[x['inputTypes']==df['inputTypes'][0]]
+        offload=x[x['offload']==1]
+        local=x[x['offload']==0]
+        i=ipVals[0]
+        arr=list(offload[i])
+        closest=findClosest(arr, len(arr), df.loc[0,ipVals][0])
+        rt=list(offload[offload['nQueens0']==closest]['runTime'])
+        sumOffloadRt=sum(rt)/len(rt)
+        arr=list(local[i])
+        closest=findClosest(arr, len(arr), df.loc[0,ipVals][0])
+        rt=list(local[local['nQueens0']==closest]['runTime'])
+        sumLocalRt=sum(rt)/len(rt)
+        if sumLocalRt>sumOffloadRt:
+            return [1]
+        else:
+            return [0]
+
+
     def getDistance(self, row1, row2, funcName, ipVals):
         distance=0
         result=0
@@ -49,22 +69,25 @@ class cascade:
             return sys.maxsize,row1['offload']
         return distance, row1['offload']
 
-    def predict(self, df, funcName, ipVals):
-        if funcName not in self.corrMap:
-            fDf=self.cascadeData[self.cascadeData[funcName]==1]
-            var=dict()
-            for col in ipVals:
-                var[col]=fDf[col].corr(fDf['runTime'])
-            self.corrMap[funcName]=var
-        distance=0
-        mindist=sys.maxsize
-        minres=0
-        for idx, row in self.cascadeData.iterrows():
-            dist, res=self.getDistance(row,df, funcName, ipVals)
-            if dist<mindist:
-                mindist=dist
-                minres=res
-        return [minres]
+    def predict(self, df, funcName, ipVals, old=False):
+        if not old:
+            if funcName not in self.corrMap:
+                fDf=self.cascadeData[self.cascadeData[funcName]==1]
+                var=dict()
+                for col in ipVals:
+                    var[col]=fDf[col].corr(fDf['runTime'])
+                self.corrMap[funcName]=var
+            distance=0
+            mindist=sys.maxsize
+            minres=0
+            for idx, row in self.cascadeData.iterrows():
+                dist, res=self.getDistance(row,df, funcName, ipVals)
+                if dist<mindist:
+                    mindist=dist
+                    minres=res
+            return [minres]
+        else:
+            return self.oldCascade(df, funcName, ipVals)
 
 class DecisionEngine:
     dB=None
@@ -290,7 +313,6 @@ class DecisionEngine:
     def getTrainMode(self):
         return self.trainMode
 
-
     def decide(self, ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName):
         if self.trainMode:
             return self.offload
@@ -357,7 +379,7 @@ class DecisionEngine:
         if (isinstance(alg, cascade)):
             df['inputTypes']=ipTypes
             df=pd.DataFrame(df, index=[0])
-            result=alg.predict(df, funcName, ipVals)
+            result=alg.predict(df, funcName, ipVals, False) #TRUE FOR OLD, FALSE FOR NEW -- RABBIT.
         else:
             df=pd.DataFrame(df, index=[0])
             df.fillna(0, inplace=True)
@@ -367,13 +389,13 @@ class DecisionEngine:
         return result[0]
 
 if __name__=="__main__":
-    dc=DecisionEngine([DecisionEngineConfig.LOGREG, DecisionEngineConfig.CASCADE])
+    dc=DecisionEngine([DecisionEngineConfig.CASCADE])
     ipTypes='1'
     ipValues='5'
     dataSize=2000
     batteryStartTime=4200
     upload=103
     download=103
-    funcName='myFunc'
+    funcName='nQueens'
     result=dc.decide(ipTypes, ipValues, dataSize, batteryStartTime, upload, download, funcName)
     print('res:',str(result))
