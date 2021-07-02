@@ -11,14 +11,13 @@ from diceLibrary.trainer import Trainer
 x = DiceConfig()
 x.setProfilerConfig([ProfilerConfig.ENERGY, ProfilerConfig.RUNTIME, ProfilerConfig.CPU, ProfilerConfig.NETWORK])
 x.setDecisionEngineConfig([DecisionEngineConfig.CASCADE])
-#x.setAnalyticsConfig([AnalyticsConfig.CURRENTRUN])
+x.setAnalyticsConfig([AnalyticsConfig.CURRENTRUN])
 x.setLoggerConfig([LoggerConfig.DOWNLOAD])
 dice = Dice(x)
 
-serverLinkQueens="http://ec2-18-223-29-55.us-east-2.compute.amazonaws.com:8080/getNQueens"
+serverLinkQueens="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com8080/getNQueens"
 metaData={'n':InputType.VALUE}
 dispatcher1=Dispatcher(serverLinkQueens, metaData=metaData)
-
 @offloadable(dice=dice, dispatcher=dispatcher1)
 def nQueens(n):
     n = int(n)
@@ -28,7 +27,7 @@ def nQueens(n):
                 == len(set(vec[i] - i for i in cols)):
             print(vec)
 
-serverLinkTOH="http://ec2-18-223-29-55.us-east-2.compute.amazonaws.com:8080/getTOH"
+serverLinkTOH="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com:8080/getTOH"
 metaData={'n':InputType.VALUE, 'source':InputType.VALUE, 'auxiliary': InputType.VALUE, 'destination':InputType.VALUE}
 dispatcher2=Dispatcher(serverLinkTOH, metaData=metaData)
 @offloadable(dice=dice, dispatcher=dispatcher2)
@@ -40,7 +39,7 @@ def TOH(n, source, auxiliary, destination):
     print("Move disk", n, "from source", source, "to destination", destination)
     TOH(n - 1, auxiliary, destination, source)
 
-serverLinkBbl="http://ec2-18-223-29-55.us-east-2.compute.amazonaws.com:8080/getSort"
+serverLinkBbl="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com:8080/getSort"
 metaData={'n':InputType.VALUE}
 dispatcher3=Dispatcher(serverLinkBbl, metaData=metaData)
 @offloadable(dice=dice, dispatcher=dispatcher3)
@@ -55,7 +54,7 @@ def bubbleSort(n):
     return "Finished sorting!"
 
     
-serverLinkCompress="http://ec2-18-223-29-55.us-east-2.compute.amazonaws.com:8080/compressVideo"
+serverLinkCompress="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com:8080/compressVideo"
 compressMetaData = {'trial':InputType.FILE, 'compressedVideo':InputType.FILE}
 dispatcher4=Dispatcher(urlEndpoint=serverLinkCompress, metaData=metaData, inputFilePath="Trails/output.mp4", outputFilePath="Trails/compressedVideo.mp4")
 @offloadable(dice=dice, dispatcher=dispatcher4)
@@ -63,7 +62,7 @@ def compress(inputFile, outputFile):
     os.system("ffmpeg -y -i " + inputFile + " -c:v libx264 -crf 25 -preset veryslow -pix_fmt yuv420p " + outputFile)
     return "FINISHED COMPRESSION"
 
-serverLinkML="http://ec2-18-223-29-55.us-east-2.compute.amazonaws.com:8080/summarize"
+serverLinkML="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com:8080/summarize"
 compressMetaData = {'nyt_small':InputType.FILE,}
 dispatcher5=Dispatcher(urlEndpoint=serverLinkML, metaData=metaData, inputFilePath="Trails/nyt.txt")
 @offloadable(dice=dice, dispatcher=dispatcher5)
@@ -72,53 +71,6 @@ def summarize(inputFile):
 
 
 if __name__ == "__main__":
-    dice.train(nQueens, [(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,),(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,),(3,),(4,),(6,),(7,),(8,),(9,),(10,),(11,), (12, )])
-
-    '''
-    print("nQueens 10")
-    nQueens(10)
-    print("nQueens 5")
-    nQueens(5)
-    print("nQueens 8")
-    nQueens(8)
-    print("nQueens 9")
-    nQueens(9)
-    '''
-
-    #dice.train(summarize, [("Trails/nyt.txt", ), ("Trails/nyt.txt", ), ("Trails/nyt.txt", )])
-    #summarize("Trails/nyt.txt")
-    #dice.train(TOH, [(5,'A', 'B', 'C',),(10,'A', 'B', 'C',),(15,'A', 'B', 'C',),(5,'A', 'B', 'C',),(10,'A', 'B', 'C',),(8,'A', 'B', 'C',)])
-    '''   
-    print("TOH for 10")
-    TOH(10, 'A', 'B', 'C')
-    print("TOH for 15")
-    TOH(15, 'A', 'B', 'C')
-    print("TOH for 25")
-    TOH(25, 'A', 'B', 'C')
-    '''
-    '''
-    print("bubblesort 100")
-    bubbleSort(100)
-    print("Bubblesort 2250")
-    bubbleSort(2250)
-    print("bubbleSort 10000")
-    bubbleSort(10000)
-    print("bubbleSort 500")
-    bubbleSort(500)
-    print("bubbleSort 2000")
-    bubbleSort(2000)
-    print("bubbleSort 3500")
-    bubbleSort(3500)
-    print("bubbleSort 10")
-    bubbleSort(10)
-    '''
-    #dice.train(nQueens, [(12, )])
-    #e.train(bubbleSort, [(100,),(500,),(1000,),(100,),(500,),(1000,),(2000,),(100,),(500,),(1000,),(100,),(500,),(1000,),(2000,),(2500,),(750,),(1000,),(3000,),(100,),(500,),(1000,),(2000,),(100,),(500,),(1000,),(2500,),(750,)])
-    #compress("Trails/output.mp4")
-    #compress("Trails/comp.mp4")
-    #compress("Trails/uploadedVideo.mp4")
-    #nQueens(10)
-    #bubbleSort(2000)
-    #dice.train(compress, [("Trails/trial.mp4", "Trails/comp.mp4", ), ("Trails/trial.mp4", "Trails/comp.mp4", ), ("Trails/trial.mp4", "Trails/comp.mp4", ), ("Trails/trial.mp4", "Trails/comp.mp4", )])
-    #compress("Trails/trial.mp4", "Trails/outputVid.mp4")
+    #dice.train(bubbleSort, [(100,),(500,),(1000,),(100,),(500,),(1000,),(2000,),(100,),(500,)])
+    bubbleSort(5000)
     print('end')

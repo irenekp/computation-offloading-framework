@@ -17,7 +17,7 @@ class Logger:
                 format="%(asctime)s-[%(name)s]-[%(levelname)s]-%(message)s",
                 datefmt='%d-%b-%y %H:%M:%S',
                 handlers=[
-                    logging.FileHandler("dice.log", mode=filemode),
+                    logging.FileHandler("Trails/dice.log", mode=filemode),
                     logging.StreamHandler(sys.stdout)
                 ])
         else:

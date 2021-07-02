@@ -39,11 +39,11 @@ class cascade:
         i=ipVals[0]
         arr=list(offload[i])
         closest=findClosest(arr, len(arr), df.loc[0,ipVals][0])
-        rt=list(offload[offload['nQueens0']==closest]['runTime'])
+        rt=list(offload[offload[i]==closest]['runTime'])
         sumOffloadRt=sum(rt)/len(rt)
         arr=list(local[i])
         closest=findClosest(arr, len(arr), df.loc[0,ipVals][0])
-        rt=list(local[local['nQueens0']==closest]['runTime'])
+        rt=list(local[local[i]==closest]['runTime'])
         sumLocalRt=sum(rt)/len(rt)
         if sumLocalRt>sumOffloadRt:
             return [1]
@@ -195,8 +195,8 @@ class DecisionEngine:
 
     def logisticRegression(self, test=False):
         try:
-           logreg = load(open('logreg.pkl', 'rb'))
-           colNames=self.readList('logreg.txt')
+           logreg = load(open('Trails/logreg.pkl', 'rb'))
+           colNames=self.readList('Trails/logreg.txt')
         except:
             df_ohe = self.prepareInput()
             logreg = LogisticRegression()
@@ -204,22 +204,22 @@ class DecisionEngine:
                 X_train,X_test,y_train,y_test,colNames=self.getTestTrain(df_ohe)
                 # fit the model with data
                 logreg.fit(X_train,y_train)
-                dump(logreg, open('logreg.pkl', 'wb'))
-                self.writeList(colNames, 'logreg.txt')
+                dump(logreg, open('Trails/logreg.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/logreg.txt')
                 y_pred=logreg.predict(X_test)
                 acc=accuracy_score(y_test, y_pred)
                 self.log.info('Logistic Regression Model Trained with Accuracy: '+str(acc))
             else:
                 X,y,colNames=self.getXY(df_ohe)
                 logreg.fit(X,y)
-                dump(logreg, open('logreg.pkl', 'wb'))
-                self.writeList(colNames, 'logreg.txt')
+                dump(logreg, open('Trails/logreg.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/logreg.txt')
         return logreg, colNames
 
     def knn(self):
         try:
-            knn = load(open('knn.pkl', 'rb'))
-            colNames=self.readList('knn.txt')
+            knn = load(open('Trails/knn.pkl', 'rb'))
+            colNames=self.readList('Trails/knn.txt')
         except:
             data = self.prepareInput()
             #data_scaled = StandardScaler().fit_transform(data)
@@ -231,14 +231,14 @@ class DecisionEngine:
                 knn.fit(X_train, y_train)
                 y_pred = knn.predict(X_test)
                 scores_list.append(metrics.accuracy_score(y_test, y_pred))
-            dump(knn,open('knn.pkl','wb'))
-            self.writeList(colNames, 'knn.txt')
+            dump(knn, open('Trails/knn.pkl', 'wb'))
+            self.writeList(colNames, 'Trails/knn.txt')
         return knn, colNames
 
     def svm(self, test=False):
         try:
-            svmM = load(open('svm.pkl', 'rb'))
-            colNames=self.readList('svm.txt')
+            svmM = load(open('Trails/svm.pkl', 'rb'))
+            colNames=self.readList('Trails/svm.txt')
         except:
             df_ohe = self.prepareInput()
             svmM = svm.SVC(kernel='linear')
@@ -246,22 +246,22 @@ class DecisionEngine:
                 X_train,X_test,y_train,y_test,colNames=self.getTestTrain(df_ohe)
                 # fit the model with data
                 svmM.fit(X_train,y_train)
-                dump(svmM, open('svm.pkl', 'wb'))
-                self.writeList(colNames, 'svm.txt')
+                dump(svmM, open('Trails/svm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/svm.txt')
                 y_pred=svmM.predict(X_test)
                 acc=accuracy_score(y_test, y_pred)
                 self.log.info('Support Vector Machine Model Trained with Accuracy: '+str(acc))
             else:
                 X,y,colNames=self.getXY(df_ohe)
                 svmM.fit(X,y)
-                dump(svmM, open('svm.pkl', 'wb'))
-                self.writeList(colNames, 'svm.txt')
+                dump(svmM, open('Trails/svm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/svm.txt')
         return svmM, colNames
 
     def decisionTree(self, test=False):
         try:
-            dtm = load(open('dtm.pkl', 'rb'))
-            colNames=self.readList('dtm.txt')
+            dtm = load(open('Trails/dtm.pkl', 'rb'))
+            colNames=self.readList('Trails/dtm.txt')
         except:
             df_ohe = self.prepareInput()
             dtm = DecisionTreeClassifier()
@@ -269,22 +269,22 @@ class DecisionEngine:
                 X_train,X_test,y_train,y_test,colNames=self.getTestTrain(df_ohe)
                 # fit the model with data
                 dtm.fit(X_train,y_train)
-                dump(dtm, open('dtm.pkl', 'wb'))
-                self.writeList(colNames, 'dtm.txt')
+                dump(dtm, open('Trails/dtm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/dtm.txt')
                 y_pred=dtm.predict(X_test)
                 acc=accuracy_score(y_test, y_pred)
                 self.log.info('Decision Tree Model Trained with Accuracy: '+str(acc))
             else:
                 X,y,colNames=self.getXY(df_ohe)
                 dtm.fit(X,y)
-                dump(dtm, open('dtm.pkl', 'wb'))
-                self.writeList(colNames, 'dtm.txt')
+                dump(dtm, open('Trails/dtm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/dtm.txt')
         return dtm, colNames
 
     def randomForest(self, test=False):
         try:
-            rfm = load(open('rfm.pkl', 'rb'))
-            colNames=self.readList('rfm.txt')
+            rfm = load(open('Trails/rfm.pkl', 'rb'))
+            colNames=self.readList('Trails/rfm.txt')
         except:
             df_ohe = self.prepareInput()
             rfm = RandomForestClassifier()
@@ -292,16 +292,16 @@ class DecisionEngine:
                 X_train,X_test,y_train,y_test,colNames=self.getTestTrain(df_ohe)
                 # fit the model with data
                 rfm.fit(X_train,y_train)
-                dump(rfm, open('rfm.pkl', 'wb'))
-                self.writeList(colNames, 'rfm.txt')
+                dump(rfm, open('Trails/rfm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/rfm.txt')
                 y_pred=rfm.predict(X_test)
                 acc=accuracy_score(y_test, y_pred)
                 self.log.info('Random Forest Model Trained with Accuracy: '+str(acc))
             else:
                 X,y,colNames=self.getXY(df_ohe)
                 rfm.fit(X,y)
-                dump(rfm, open('rfm.pkl', 'wb'))
-                self.writeList(colNames, 'rfm.txt')
+                dump(rfm, open('Trails/rfm.pkl', 'wb'))
+                self.writeList(colNames, 'Trails/rfm.txt')
         return rfm, colNames
 
     def setOffload(self, ip: bool):
