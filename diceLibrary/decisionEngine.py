@@ -1,7 +1,11 @@
 import pandas as pd
+from pandas import Series
+from sklearn.preprocessing import Normalizer
+
 from diceLibrary.cascadeDatabase import cascadeDatabase
 from diceLibrary.settings import InputType, findClosest
 from sklearn import metrics
+from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -14,6 +18,7 @@ import logging
 from diceLibrary.settings import DecisionEngineConfig
 from statistics import mode
 import sys
+from scipy.spatial import distance
 import numpy as np
 
 class cascade:
@@ -50,21 +55,34 @@ class cascade:
         else:
             return [0]
 
-
     def getDistance(self, row1, row2, funcName, ipVals):
         distance=0
         result=0
+        vals = row2.drop([funcName, 'inputTypes'], axis=1)
+        vals.fillna(0, inplace=True)
+        vals = vals.astype(float)
+        vals = vals.div(vals.sum(axis=1), axis=0)
+
+        vals_db=Series.to_frame(row1).T
+        vals_db = vals_db[['upload', 'download', 'batteryStartTime', 'dataSize']]
+        for col in ipVals:
+            vals_db[col] = row1[col]
+        vals_db.fillna(0, inplace=True)
+        vals_db = vals_db.astype(float)
+        vals_db = vals_db.div(vals_db.sum(axis=1), axis=0)
+
         if row1[funcName]==1 and row1['inputTypes']==str(row2['inputTypes'][0]):
             for col in ipVals:
-                distance+=(abs(row1[col]-float(row2[col][0]))/self.corrMap[funcName].get(col,1))
-            if row1['batteryStartTime'] is not None and row2['batteryStartTime'][0] is not None:
-                distance+=abs(row1['batteryStartTime']-float(row2['batteryStartTime'][0]))
-            if row1['upload'] is not None and row2['upload'][0] is not None:
-                distance+=abs(row1['upload']-float(row2['upload'][0]))
-            if row1['download'] is not None and row2['download'][0] is not None:
-                distance+=abs(row1['download']-float(row2['download'][0]))
-            if row1['dataSize'] is not None and row2['dataSize'][0] is not None:
-                distance+=abs(row1['dataSize']-float(row2['dataSize'][0]))
+                #Euclidean distance taken for each row
+                distance += np.linalg.norm(float(vals[col]) - float(vals_db[col]))
+            if row1['batteryStartTime'] != 0 and row2['batteryStartTime'][0] != 0:
+                distance+= np.linalg.norm(float(vals['batteryStartTime']) - float(vals_db['batteryStartTime']))
+            if row1['upload'] != 0 and row2['upload'][0] != 0:
+                distance+=np.linalg.norm(float(vals['upload']) - float(vals_db['upload']))
+            if row1['download'] != 0 and row2['download'][0] != 0:
+                distance+=np.linalg.norm(float(vals['download']) - float(vals_db['download']))
+            if row1['dataSize'] != 0 and row2['dataSize'][0] != 0:
+                distance+= np.linalg.norm(float(vals['dataSize']) - float(vals_db['dataSize']))
         else:
             return sys.maxsize,row1['offload']
         return distance, row1['offload']
@@ -80,6 +98,7 @@ class cascade:
             distance=0
             mindist=sys.maxsize
             minres=0
+
             for idx, row in self.cascadeData.iterrows():
                 dist, res=self.getDistance(row,df, funcName, ipVals)
                 if dist<mindist:

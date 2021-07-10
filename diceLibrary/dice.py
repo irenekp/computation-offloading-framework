@@ -117,7 +117,7 @@ def offloadable(*args, **kwargs):
                     dice.log.info('Run time analytics for function '+func.__name__+' stored in CASCADE DB with runId:'+id)
                     if dice.analyticsStatus and dice.singleRun:
                         dice.analytics.addToAnalytics(id)
-                        dice.analyze()
+                        #dice.analyze()
                         dice.log.info("Graphs will be available at analytics page: http://localhost:8080/analyticsPage")
                     else:
                         dice.log.info('No graphs to be generated for: '+func.__name__)

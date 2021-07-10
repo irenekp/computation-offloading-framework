@@ -91,8 +91,8 @@ class Profiler:
             s.download(threads=threads)
             s.upload(threads=threads)
             res = s.results.dict()
-            self.networkStats.upload=res['upload']
-            self.networkStats.download=res['download']
+            self.networkStats.upload=res['upload']/1000000000
+            self.networkStats.download=res['download']/1000000000
             self.networkStats.ping=res['ping']
             self.networkStats.latency=res['server']['latency']
             self.log.info('Network Stats: upload: '+str(res['upload'])\

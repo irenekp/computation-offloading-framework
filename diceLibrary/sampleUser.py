@@ -5,7 +5,7 @@ from diceLibrary.dice import Dice
 from itertools import permutations
 from diceLibrary.dice import offloadable
 from diceLibrary.dispatcher import Dispatcher
-import ml_func
+#import ml_func
 from diceLibrary.trainer import Trainer
 
 x = DiceConfig()
@@ -15,7 +15,7 @@ x.setAnalyticsConfig([AnalyticsConfig.CURRENTRUN])
 x.setLoggerConfig([LoggerConfig.DOWNLOAD])
 dice = Dice(x)
 
-serverLinkQueens="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com8080/getNQueens"
+serverLinkQueens="http://ec2-3-143-255-59.us-east-2.compute.amazonaws.com:8080/getNQueens"
 metaData={'n':InputType.VALUE}
 dispatcher1=Dispatcher(serverLinkQueens, metaData=metaData)
 @offloadable(dice=dice, dispatcher=dispatcher1)
@@ -72,5 +72,6 @@ def summarize(inputFile):
 
 if __name__ == "__main__":
     #dice.train(bubbleSort, [(100,),(500,),(1000,),(100,),(500,),(1000,),(2000,),(100,),(500,)])
-    bubbleSort(5000)
+    dice.train(nQueens, [(7,),(5,),(4,),(8,),(10,),(9,)])
+    nQueens(10)
     print('end')
