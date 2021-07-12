@@ -45,7 +45,7 @@ def append_id(filename):
 def getWordEmbeddings():
   # Extract word vectors
   word_embeddings = {}
-  f = open('glove.6B/glove.6B.100d.txt', encoding='utf-8')
+  f = open('Trails/glove.6B.100d.txt', encoding='utf-8')
   for line in f:
       values = line.split()
       word = values[0]
@@ -53,7 +53,6 @@ def getWordEmbeddings():
       word_embeddings[word] = coefs
   f.close()
   return word_embeddings
-word_embeddings=getWordEmbeddings()
 
 #offloadable
 def textPreprocessing(filename):
@@ -83,6 +82,7 @@ def MLmath(cleanFileName):
   clean_sentences=ip['clean_sentences']
   sentences=ip['sentences']
   sentence_vectors = []
+  word_embeddings = getWordEmbeddings()
   for i in clean_sentences:
     if len(i) != 0:
       v = sum([word_embeddings.get(w, np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
@@ -104,17 +104,19 @@ def MLmath(cleanFileName):
   dictToFile(sumFileName,res)
   return sumFileName
 
-#not offloadable
-def writeSummary(filename):
+#offloadable
+def writeSummary(filename, outfile):
   res=fileToDict(filename)
   ranked_sentences=res['ranked_sentences']
+  outfile = open(outfile, 'w')
   for i in range(10):
     print(ranked_sentences[i][1])
+    outfile.write(ranked_sentences[i][1])
 
-def summarizerMain(filename):
+def summarizerMain(filename, outfile):
   cleanFileName = textPreprocessing(filename)
   sumFileName = MLmath(cleanFileName)
-  writeSummary(sumFileName)
+  writeSummary(sumFileName, outfile)
 
 #main
 if __name__ == "__main__":

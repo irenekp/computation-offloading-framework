@@ -87,8 +87,8 @@ class Dispatcher:
         return self._inputFilePath
 
     @staticmethod
-    def getDataSize(self, filepath):
-        return os.path.getsize(filepath)
+    def getDataSize():
+        return os.path.getsize()
 
     def offload_File_File(self):
         api_url = self._urlEndpoint

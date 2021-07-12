@@ -7,8 +7,9 @@ from diceLibrary.decisionEngine import DecisionEngine
 from diceLibrary.trainer import Trainer
 from diceLibrary.dispatcher import Dispatcher
 import diceLibrary.app as analyticsApp
-
+import os
 import time
+
 class Dice:
     config=None
     profiler=None
@@ -78,6 +79,9 @@ class Dice:
 
         return types, ipvals
 
+    @staticmethod
+    def getFileSize(filepath):
+        return (os.path.getsize(filepath)/1000)
 
     def dispatch(self, dispatcher,json):
         self.dispatcher=dispatcher
@@ -100,7 +104,7 @@ def offloadable(*args, **kwargs):
                 dataSize = 0
                 for key, value in metaData.items():
                     if value == InputType.FILE:
-                        dataSize = dataSize + Dispatcher.getDataSize(dispatcher.getIpFilePath())
+                        dataSize = dataSize + Dice.getFileSize(dispatcher.getIpFilePath())
                 #if not dice.profiler.checkInternet():
                     #offload = False
                 offload=True if dice.decisionEngine.decide(ipTypes=ipTypes, ipValues=ipValues, dataSize=dataSize, batteryStartTime=batteryS, upload=upload, download=download,funcName=func.__name__)==True else False
